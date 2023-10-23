@@ -14,8 +14,8 @@ class HelpsupportController extends ControllersController
 {
     public function __construct()
     {
-       // $this->middleware('auth:coordinator');
-        $this->middleware('auth');
+       $this->middleware('auth:coordinator');
+        //$this->middleware('auth');
     }
 
     public function index()
