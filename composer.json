@@ -1,0 +1,18 @@
+{
+    "name": "moeen/helpsupport",
+    "description": "This package provide a help support system",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Moeen\\Helpsupport\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "MiaadSaif",
+            "email": "118962191+MiaadSaif@users.noreply.github.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
