@@ -17,11 +17,11 @@ The Help Support System allows clients to contact Moeen support. This package ca
 ` composer require moeen1/helpsupport`
 
 
- In config/app.php, add the following to the providers section:
+2. In config/app.php, add the following to the providers section:
   `'providers' => [Moeen\Helpsupport\HelpsupportServiceProvider::class,],`
 
 
-Run the following commands in your terminal:
+ 3. Run the following commands in your terminal:
 
 ` php artisan optimize`
 
@@ -32,7 +32,7 @@ Run the following commands in your terminal:
 
 ` composer update `
 
-In your main project, open the configuration file for Help Support at:
+4. In your main project, open the configuration file for Help Support at:
                  vendor\moeen1\helpsupport\src\config\helpsupport.php
 
 ```
@@ -48,7 +48,7 @@ client_id and project_id = check the moeen system , what id you give for your pr
 "project_id"=>1] `
 
 
-By this link you will open the system for you
+5. By this link you will open the system for you
 
 ` http://your-website-link/support `
 
