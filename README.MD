@@ -47,8 +47,16 @@ client_id and project_id = check the moeen system , what id you give for your pr
 ` return ["base_url" => "http://192.168.100.192:1234","client_id" => 1,
 "project_id"=>1] `
 
+5. Run this command in your terminal:
+`  php artisan config:cache    `
 
-5. By this link you will open the system for you
+6. Add this route to your web.php in your project
+
+` Route::get('/support', function () { return view('helpsupport::help');}); `
+
+
+
+7. By this link you can open the system
 
 ` http://your-website-link/support `
 
@@ -56,7 +64,3 @@ client_id and project_id = check the moeen system , what id you give for your pr
 
      http://127.0.0.1:9999/support
 
-Route::get('/support', function () {
-    return view('helpsupport::help');
-
-});
