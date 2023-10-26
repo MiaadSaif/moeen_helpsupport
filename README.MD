@@ -55,3 +55,8 @@ client_id and project_id = check the moeen system , what id you give for your pr
       Example:
 
      http://127.0.0.1:9999/support
+
+Route::get('/support', function () {
+    return view('helpsupport::help');
+
+});

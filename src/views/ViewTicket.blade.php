@@ -1,8 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
 @inject('carbon', 'Carbon\Carbon')
-
 
 <head>
     <title>{{ __('Complains History') }}</title>
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
     <link id="style" href="{{ asset('plugins/css/bootstrap.min.css') }}" rel="stylesheet" />
 
     <!-- STYLE CSS -->
@@ -11,15 +13,13 @@
     <link href="{{ asset('vendor/helpsupport/css/transparent-style.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/helpsupport/css/skin-modes.css') }}" rel="stylesheet" />
 
+
     <!-- FONT-ICONS CSS -->
     <link href="{{ asset('vendor/helpsupport/css/icons.css') }}" rel="stylesheet" />
 
     <!-- COLOR SKIN CSS -->
     <link id="theme" rel="stylesheet" type="text/css" media="all" href="{{ asset('vendor/helpsupport/colors/color1.css') }}" />
 </head>
-
-
-
 
 <body>
     <div class="container">
@@ -29,7 +29,6 @@
                 <ol class='breadcrumb'>
                     <li class='breadcrumb-item active' aria-current='page'>{{ __('My Tickets ') }}</li>
                     <li class='breadcrumb-item active' aria-current='page'><a href="{{ route('help') }}">{{ __('Help & Support ') }}</a></li>
-
                 </ol>
             </div>
         </div>
@@ -51,11 +50,11 @@
                                     <tr>
                                         <th>{{ __('No') }}</th>
                                         <th>{{ __('Project Name') }}</th>
-                                        <th>{{ __('complain subject') }}</th>
+                                        <th>{{ __('Complain Subject') }}</th>
                                         <th>{{ __('Category Type') }}</th>
                                         <th>{{ __('Attachment') }}</th>
-                                        <th>{{ __('status') }}</th>
-                                        <th>{{ __('priority') }}</th>
+                                        <th>{{ __('Status') }}</th>
+                                        <th>{{ __('Priority') }}</th>
                                         <th>{{ __('Details') }}</th>
                                     </tr>
                                 </thead>
@@ -68,31 +67,20 @@
                                             <td style="">{{ $complain->category_name }}</td>
                                             <td style="">
                                                 @if ($complain->file1 != null)
-                                                    <small class="text"><b font-weight: bold>Available</i></b>
-                                                    </small>
+                                                    <small class="text"><b font-weight: bold>Available</i></b></small>
                                                 @else
-                                                    <small class="text-danger"><b font-weight: bold>None</b>
-                                                    </small>
+                                                    <small class="text-danger"><b font-weight: bold>None</b></small>
                                                 @endif
                                             </td>
-                                            <td style="" class="    @if ($complain->status == 'Open') @elseif($complain->status == 'Close')
-                                            text-danger
-                                            @else
-                                            text-danger @endif ">{{ $complain->status }}</td>
-                                            <td style="" class="
-                                        @if ($complain->priority == 'High') text-danger
-                                        @elseif($complain->priority == 'Normal')
-                                        text-success
-                                        @else
-                                        text-warning @endif
-                                    ">{{ $complain->priority }}</td>
-                                            <td style=""><a class="btn btn-primary btn-sm" href="{{ route('showResponse', ['complain_id' => $complain->id, 'client_id' => config('helpsupport.client_id')]) }}"><i class="fa fa-eye"></i> </a></td>
+                                            <td class="{{ $complain->status === 'Open' ? 'text-success' : ($complain->status === 'Close' ? 'text-danger' : '') }}">{{ $complain->status }}</td>
+                                            <td class="{{ $complain->priority === 'High' ? 'text-danger' : ($complain->priority === 'Normal' ? 'text-success' : 'text-warning') }}">{{ $complain->priority }}</td>
+                                            <td><a class="btn btn-primary btn-sm" href="{{ route('showResponse', ['complain_id' => $complain->id, 'client_id' => config('helpsupport.client_id')]) }}"><i class="fa fa-eye"></i></a></td>
+
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         @else
-
                             <div class="alert alert-info" role="alert">
                                 {{ __('There are no tickets for you.') }}
                             </div>
@@ -102,26 +90,28 @@
             </div>
         </div>
     </div>
-</body>
 
-@section('scripts')
-    <script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
         $(document).ready(function() {
             $('#listcomplains').DataTable();
-
-            $('#status-filter').on('change', function() {
-                var status = $(this).val();
-                if (status === 'all') {
-                    $('tr').show();
-                } else {
-                    $('tr').hide();
-                    $('tr').each(function() {
-                        if ($(this).find('td:eq(5)').text() === status) {
-                            $(this).show();
-                        }
-                    });
-                }
-            });
+        });
+        $('#status-filter').on('change', function() {
+            var status = $(this).val();
+            if (status === 'all') {
+                $('#listcomplains tbody tr').show();
+            } else {
+                $('#listcomplains tbody tr').hide();
+                $('#listcomplains tbody tr').each(function() {
+                    if ($(this).find('td:eq(5)').text() === status) {
+                        $(this).show();
+                    }
+                });
+            }
         });
     </script>
-@endsection
+</body>
+
+</html>

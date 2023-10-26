@@ -3,8 +3,10 @@
 namespace Moeen\Helpsupport\Http\Controllers;
 
 use App\Http\Controllers\Controller as ControllersController;
+use CURLFile;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -14,7 +16,7 @@ class HelpsupportController extends ControllersController
 {
     public function __construct()
     {
-       $this->middleware('auth:coordinator');
+        $this->middleware('auth:coordinator');
         //$this->middleware('auth');
     }
 
@@ -53,7 +55,17 @@ class HelpsupportController extends ControllersController
 
         // Create the request data
         if ($request->file("file1")) {
-            $requestData = array_merge($request->all(), ['file1' => curl_file_create($request->file('file1')->getRealPath(), $request->file('file1')->getClientOriginalName())]);
+            //  $requestData = array_merge($request->all(), ['file1' => curl_file_create($request->file('file1')->getRealPath(), $request->file('file1')->getClientOriginalName())]);
+            $originalName = $request->file('file1')->getClientOriginalName();
+            $originalName = str_replace(' ', '_', $originalName); // Replace spaces with underscores
+            $originalName = urlencode($originalName); // URL-encode the filename
+            $file1 = new CURLFile(
+                $request->file('file1')->getRealPath(),
+                $request->file('file1')->getMimeType(),
+                $originalName
+            );
+            $requestData = array_merge($request->all(), ['file1' => $file1]);
+            log::alert($requestData);
         } else {
             $requestData = $request->all();
         }
@@ -115,7 +127,16 @@ class HelpsupportController extends ControllersController
 
         // Create the request data
         if ($request->file("file1")) {
-            $requestData = array_merge($request->all(), ['respond_direction' => 'c2m', 'file1' => curl_file_create($request->file('file1')->getRealPath(), $request->file('file1')->getClientOriginalName())]);
+            // $requestData = array_merge($request->all(), ['respond_direction' => 'c2m', 'file1' => curl_file_create($request->file('file1')->getRealPath(), $request->file('file1')->getClientOriginalName())]);
+            $originalName = $request->file('file1')->getClientOriginalName();
+            $originalName = str_replace(' ', '_', $originalName); // Replace spaces with underscores
+            $originalName = urlencode($originalName); // URL-encode the filename
+            $file1 = new CURLFile(
+                $request->file('file1')->getRealPath(),
+                $request->file('file1')->getMimeType(),
+                $originalName
+            );
+            $requestData = array_merge($request->all(), ['file1' => $file1, 'respond_direction' => 'c2m']);
         } else {
             $requestData = array_merge($request->all(), ['respond_direction' => 'c2m']);
         }
@@ -171,7 +192,7 @@ class HelpsupportController extends ControllersController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $response = curl_exec($ch);
-
+        //dd($response);
         if (curl_errno($ch)) {
             echo 'Error: ' . curl_error($ch);
         }
@@ -179,7 +200,7 @@ class HelpsupportController extends ControllersController
         //dd(json_decode($response));
         $complain = json_decode($response);
         // dd($complains, request()['complain_id']);
-        // dd($complain);
+        //dd($complain);
         curl_close($ch);
         return view('helpsupport::ViewResponse', compact("complain"));
         // return view('maf.help_support.ViewResponse');
@@ -243,7 +264,7 @@ class HelpsupportController extends ControllersController
         //dd($complains);
         return view('helpsupport::ViewTicket', compact("complains"));
     }
-    public function TicketTracking(Request $request)
+   /*  public function TicketTracking(Request $request)
     {
 
 
@@ -270,16 +291,77 @@ class HelpsupportController extends ControllersController
 
         // dd(json_decode($response));
         $complain = json_decode($response);
-
-       // dd($complain);
+       // log::alert($complain);
         if (!$complain || !$complain->complain) {
             return redirect()->back()->with("error", "Ticket Number Not Found");
         }
         return view('helpsupport::ViewResponse', compact("complain"));
 
         curl_close($ch);
+    } */
+    public function TicketTracking(Request $request)
+    {
+        $complain_id = $request->input('complain_id');
+
+        $client_id = config("helpsupport.client_id");
+        $ch = curl_init();
+        $url = config("helpsupport.base_url");
+
+        curl_setopt($ch, CURLOPT_URL, "$url/api/list_response/$client_id/$complain_id");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            echo 'Error: ' . curl_error($ch);
+        }
+
+        $complain = json_decode($response);
+
+        if (!$complain || !$complain->complain) {
+            // Display a toastr error notification
+            echo '<script>toastr.error("Ticket Number Not Found", "Error");</script>';
+            return redirect()->back();
+        }
+
+        return view('helpsupport::ViewResponse', compact("complain"));
     }
 
+    public function updateTicketStatus($ticketId) {
+        // Define the endpoint URL and other necessary data
+        $url = "http://example.com/update-ticket-status"; // Replace with the actual URL
+        $data = [
+            'ticket_id' => $ticketId,
+            'new_status' => 'Open', // Set the new status to "Open"
+        ];
 
+        // Initialize cURL session
+        $ch = curl_init($url);
 
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
+        // Execute cURL session
+        $response = curl_exec($ch);
+
+        // Check for errors and handle the response
+        if (curl_errno($ch)) {
+            // Handle cURL errors
+            return "cURL Error: " . curl_error($ch);
+        } else {
+            // Assuming the response from the server indicates success
+            // You can add more error handling as needed
+            // Update your local database table with the new status
+            DB::table('your_table_name')
+                ->where('ticket_id', $ticketId)
+                ->update(['status' => 'Open']);
+
+            return "Status updated successfully.";
+        }
+
+        // Close cURL session
+        curl_close($ch);
+}
 }

@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
 <head>
     <title>{{ __('Help Support') }}</title>
     {{--     {{ Config::get('helpsupport.base_url') }} --}}
@@ -110,9 +113,10 @@
         </div>
     </div>
 
-</body>
-@section('scripts')
-    <script src="{{ asset('vendor/helpsupport/js/jquery.min.js') }}"></script>
+
+    <script>
+        < script src = "{{ asset('vendor/helpsupport/js/jquery.min.js') }}" >
+    </script>
 
     <!-- BOOTSTRAP JS -->
     <script src="{{ asset('vendor/helpsupport/plugins/bootstrap/js/popper.min.js') }}"></script>
@@ -132,4 +136,7 @@
 
     <!-- CUSTOM JS -->
     <script src="{{ asset('vendor/helpsupport/js/custom.js') }}"></script>
-@endsection
+    </script>
+</body>
+
+</html>

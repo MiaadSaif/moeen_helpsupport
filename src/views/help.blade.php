@@ -17,6 +17,9 @@
     <link href="{{ asset('vendor/helpsupport/css/icons.css') }}" rel="stylesheet" />
     <!-- COLOR SKIN CSS -->
     <link id="theme" rel="stylesheet" type="text/css" media="all" href="{{ asset('vendor/helpsupport/colors/color1.css') }}" />
+
+    <link rel="stylesheet" href="{{ asset('path/to/toastr.min.css') }}">
+
 </head>
 
 <body class="app sidebar-mini ltr login-img">
@@ -35,52 +38,52 @@
                 <div class="container-login100">
                     <div class="wrap-login100 p-6">
                         {{-- <form class="login100-form validate-form"> --}}
-                            <span class="login100-form-title pb-5">
-                                Tickets Details
-                            </span>
-                            <div class="panel panel-primary">
-                                <div class="tab-menu-heading">
-                                    <div class="tabs-menu1">
-                                        <!-- Tabs -->
-                                        <ul class="nav panel-tabs">
-                                            <li class="mx-0"><a href="#tab5" class="active" data-bs-toggle="tab">Ticket</a></li>
-                                            <li class="mx-0"><a href="#tab6" data-bs-toggle="tab">Check the Ticket</a></li>
-                                        </ul>
-                                    </div>
+                        <span class="login100-form-title pb-5">
+                            Tickets Details
+                        </span>
+                        <div class="panel panel-primary">
+                            <div class="tab-menu-heading">
+                                <div class="tabs-menu1">
+                                    <!-- Tabs -->
+                                    <ul class="nav panel-tabs">
+                                        <li class="mx-0"><a href="#tab5" class="active" data-bs-toggle="tab">Ticket</a></li>
+                                        <li class="mx-0"><a href="#tab6" data-bs-toggle="tab">Check the Ticket</a></li>
+                                    </ul>
                                 </div>
-                                <div class="panel-body tabs-menu-body p-0 pt-5">
-                                    <div class="tab-content">
-                                        <div class="tab-pane active " id="tab5">
-                                            <div class="card-body">
-                                                <a class="btn btn-primary btn-block" href="{{ route('createNewTicket') }}" id="createSupportNewTicket"><i class="fa fa-file"></i>&nbsp;{{ __('Submit New Support Ticket') }} </a>
+                            </div>
+                            <div class="panel-body tabs-menu-body p-0 pt-5">
+                                <div class="tab-content">
+                                    <div class="tab-pane active " id="tab5">
+                                        <div class="card-body">
+                                            <a class="btn btn-primary btn-block" href="{{ route('createNewTicket') }}" id="createSupportNewTicket"><i class="fa fa-file"></i>&nbsp;{{ __('Submit New Support Ticket') }} </a>
+                                        </div>
+                                        <div class="card-body">
+                                            <a class="btn btn-primary btn-block" href="{{ route('MytTickets') }}" id="ShowTicket"><i class="fa fa-trello"></i>&nbsp;{{ __('Show My Tickets') }} </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane" id="tab6">
+                                        <form id="TiketTracking" name="TiketTracking" class="form-horizontal" method="POST" action="{{ route('checkTicketTracking') }}" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label for="complain_id" class="form-label">{{ __('Enter The Ticket Id') }}</label>
+
+                                                <input type="text" class="form-control" name="complain_id" id="complain_id" aria-describedby="complain_id" placeholder="{{ __('Ticket Number') }}" value="{{ old('complain_id') }}" required>
+                                                @if (session('error'))
+                                                    <div class="alert alert-danger">
+                                                        {{ session('error') }}
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="card-body">
-                                                <a class="btn btn-primary btn-block" href="{{ route('MytTickets') }}" id="ShowTicket"><i class="fa fa-trello"></i>&nbsp;{{ __('Show My Tickets') }} </a>
+                                                <button class="btn btn-primary btn-block" id="CurrentTicket"><i class="icon icon-knowledge"></i>{{ __('Track Current Ticket') }} </button>
                                             </div>
-                                        </div>
-
-                                        <div class="tab-pane" id="tab6">
-                                            <form id="TiketTracking" name="TiketTracking" class="form-horizontal" method="POST" action="{{ route('checkTicketTracking') }}" enctype="multipart/form-data">
-                                                @csrf
-                                                <div class="mb-3">
-                                                    <label for="complain_id" class="form-label">{{ __('Enter The Ticket Id') }}</label>
-
-                                                    <input type="text" class="form-control" name="complain_id" id="complain_id" aria-describedby="complain_id" placeholder="{{ __('Ticket Number') }}" value="{{ old('complain_id') }}" required>
-                                                    @if (session('error'))
-                                                        <div class="alert alert-danger">
-                                                            {{ session('error') }}
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                                <div class="card-body">
-                                                    <button class="btn btn-primary btn-block" id="CurrentTicket"><i class="icon icon-knowledge"></i>{{ __('Track Current Ticket') }} </button>
-                                                </div>
-                                            </form>
-                                        </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                       {{--  </form> --}}
+                        </div>
+                        {{--  </form> --}}
                     </div>
                 </div>
 
@@ -139,6 +142,11 @@
     <script src="{{ asset('vendor/helpsupport/js/custom.js') }}"></script>
 
     <!-- Custom script for triggering the modal -->
+
+    <script src="{{ asset('path/to/toastr.min.js') }}"></script>
+
+
+
     <script type="text/javascript">
         $(function() {
             $.ajaxSetup({
@@ -153,8 +161,16 @@
                 $('#ajaxModel').modal('show');
             });
 
+
+
+
         });
+        toastr.options = {
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+        };
     </script>
+
 
 </body>
 
