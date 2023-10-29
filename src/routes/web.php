@@ -14,4 +14,6 @@ Route::middleware(['web', 'change_password'])->group(function () {
     Route::post('/ViewResponse/submit_response', [HelpsupportController::class, 'submit_response'])->name('createNewResponse');
     //Route::get('/ViewResponse/TicketTracking', [HelpsupportController::class, 'TicketTracking'])->name('TicketTracking');
     Route::post('/ViewResponse/TicketTracking', [HelpsupportController::class, 'TicketTracking'])->name('checkTicketTracking');
+    Route::post('/ViewResponse/updateTicketStatus/{ticketId}', [HelpsupportController::class, 'updateTicketStatus'])->name('updateTicketStatus');
+
 });

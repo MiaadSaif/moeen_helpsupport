@@ -98,7 +98,12 @@
                                     <dd class="col-sm-6" style="text-align: end"><span style="color: red;">{{ $complain->complain->closed_at }}</span></dd>
                                     <dt class="col-sm-6"></dt>
                                     <dd>
-                                        <a href="{{-- {{ route("", ['ticket_id' => $complain->complain->id]) }}" --}}" class="btn btn-primary">{{ __('Re-Open Ticket') }}</a>
+                                        <form id="update" name="update" method="POST" action="{{ route('updateTicketStatus', $complain->complain->id) }}" enctype="multipart/form-data">
+                                            @csrf
+                                            @method('POST')
+                                            <button type="submit" class="btn btn-primary">{{ __('Re-Open Ticket') }}</button>
+                                        </form>
+
                                     </dd>
                                 @endif
 

@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Moeen\Helpsupport\Http\Controllers\Controller;
@@ -264,7 +265,7 @@ class HelpsupportController extends ControllersController
         //dd($complains);
         return view('helpsupport::ViewTicket', compact("complains"));
     }
-   /*  public function TicketTracking(Request $request)
+    /*  public function TicketTracking(Request $request)
     {
 
 
@@ -327,41 +328,41 @@ class HelpsupportController extends ControllersController
         return view('helpsupport::ViewResponse', compact("complain"));
     }
 
-    public function updateTicketStatus($ticketId) {
-        // Define the endpoint URL and other necessary data
-        $url = "http://example.com/update-ticket-status"; // Replace with the actual URL
+
+    public function updateTicketStatus($ticketId)
+    {
+        // Set cURL options
+        $ch = curl_init();
+        $url = config("helpsupport.base_url");
+
+        // Construct the endpoint URL with the ticket ID
+        $endpointUrl = "$url/api/update_ticket_status/$ticketId";
+
+        curl_setopt($ch, CURLOPT_URL, $endpointUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+
+        // Define the data to be sent to the server
         $data = [
-            'ticket_id' => $ticketId,
-            'new_status' => 'Open', // Set the new status to "Open"
+            'status' => 'Open', // Set the new status to "Open"
         ];
 
-        // Initialize cURL session
-        $ch = curl_init($url);
-
         // Set cURL options
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         // Execute cURL session
         $response = curl_exec($ch);
 
-        // Check for errors and handle the response
         if (curl_errno($ch)) {
             // Handle cURL errors
             return "cURL Error: " . curl_error($ch);
         } else {
             // Assuming the response from the server indicates success
             // You can add more error handling as needed
-            // Update your local database table with the new status
-            DB::table('your_table_name')
-                ->where('ticket_id', $ticketId)
-                ->update(['status' => 'Open']);
-
-            return "Status updated successfully.";
+            return back();
         }
 
         // Close cURL session
         curl_close($ch);
-}
+    }
 }
