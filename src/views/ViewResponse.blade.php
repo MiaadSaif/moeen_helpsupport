@@ -216,7 +216,7 @@
                     @endforeach
 
                     {{--  Reply form --}}
-                    @if ($complain->complain->status != 'closed')
+                    @if ($complain->complain->status != 'Close')
                         <div class="col-12">
                             <div class="card text-left">
                                 <div class="card-body">
