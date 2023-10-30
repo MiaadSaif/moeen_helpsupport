@@ -101,7 +101,10 @@
                                         <form id="update" name="update" method="POST" action="{{ route('updateTicketStatus', $complain->complain->id) }}" enctype="multipart/form-data">
                                             @csrf
                                             @method('POST')
-                                            <button type="submit" class="btn btn-primary">{{ __('Re-Open Ticket') }}</button>
+                                            <button type="submit" class="btn btn-primary" onclick="scrollToReplyForm()">{{ __('Re-Open Ticket') }}</button>
+
+                                            {{--                                             <button type="submit" id="re-open-button" class="btn btn-primary">{{ __('Re-Open Ticket') }}</button>
+ --}}
                                         </form>
 
                                     </dd>
@@ -217,10 +220,11 @@
 
                     {{--  Reply form --}}
                     @if ($complain->complain->status != 'Close')
-                        <div class="col-12">
+                        <div id="reply-form" class="col-12">
+
                             <div class="card text-left">
                                 <div class="card-body">
-                                    <form action="{{ route('createNewResponse') }}" method="Post" enctype="multipart/form-data">
+                                    <form action="{{ route('createNewResponse') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
 
                                         <h4 class="card-title">{{ __('Add a reply') }}</h4>
@@ -282,6 +286,7 @@
 
         <!-- CUSTOM JS -->
         <script src="{{ asset('vendor/helpsupport/js/custom.js') }}"></script>
+
         {{-- //blade (script) --}}
         <script type="text/javascript">
             $(function() {
@@ -331,10 +336,16 @@
                     ]
                 });
             });
-            $('form').submit(function() {
-                $('#loader').show(); // Show the loader or message
-                $('#replyButton').hide(); // Hide the reply button
-            });
+
+
+            function scrollToReplyFormTest() {
+                const replyFormSection = document.getElementById('reply-form');
+                if (replyFormSection) {
+                    replyFormSection.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            }
         </script>
 </body>
 
