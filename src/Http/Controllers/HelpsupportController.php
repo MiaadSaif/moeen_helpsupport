@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Moeen\Helpsupport\Http\Controllers\Controller;
+use Brian2694\Toastr\Facades\Toastr;
+use Alert;
 
 class HelpsupportController extends ControllersController
 {
@@ -20,7 +22,7 @@ class HelpsupportController extends ControllersController
         $this->middleware('auth:coordinator');
         //$this->middleware('auth');
     }
-
+    // to show the first page of system
     public function index()
     {
 
@@ -32,6 +34,9 @@ class HelpsupportController extends ControllersController
      *
      * @return \Illuminate\Http\Response
      */
+
+
+    // to create a new  tickets
     public function create()
     {
         $type = request()->type;
@@ -45,6 +50,8 @@ class HelpsupportController extends ControllersController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    // to store a newly created Tickets
     public function store(Request $request)
     {
 
@@ -66,7 +73,6 @@ class HelpsupportController extends ControllersController
                 $originalName
             );
             $requestData = array_merge($request->all(), ['file1' => $file1]);
-            log::alert($requestData);
         } else {
             $requestData = $request->all();
         }
@@ -95,13 +101,11 @@ class HelpsupportController extends ControllersController
                 echo 'Error: ' . curl_error($ch);
             }
             curl_close($ch);
-            //dd(json_decode($response));
+
+
             $complains = json_decode($response);
 
             return redirect("ViewTicket/MyTickets");
-            //dd($complains);
-
-            //   return view('maf.help_support.ViewTicket', compact("complains"));
         } else {
             return back()->with('error', 'An error occurred while submitting your complaint. Please try again later.');
         }
@@ -116,6 +120,8 @@ class HelpsupportController extends ControllersController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    // to add a new reply for the specified ticket
     public function submit_response(Request $request)
     {
 
@@ -149,7 +155,7 @@ class HelpsupportController extends ControllersController
 
         // Execute the request
         $response = curl_exec($ch);
-        //dd(json_decode($response));
+
         // Check if response is successful
         if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200 && json_decode($response)->message == 'successful') {
             $client_id = json_decode($response)->complains->client_id;
@@ -167,11 +173,11 @@ class HelpsupportController extends ControllersController
             if (curl_errno($ch)) {
                 echo 'Error: ' . curl_error($ch);
             }
-            //dd($response);
-            // dd(json_decode($response));
+
             $complain = json_decode($response);
 
-            return view('helpsupport::ViewResponse', compact("complain"));
+            return redirect()->route('showResponse', ['complain_id' => $complain_id]);
+
 
             curl_close($ch);
         } else {
@@ -181,32 +187,36 @@ class HelpsupportController extends ControllersController
         // Close cURL
         curl_close($ch);
     }
+
+    //to show the details of the tickets
     public function show()
     {
-
-
         $ch = curl_init();
         $client_id = config("helpsupport.client_id");
         $url = config("helpsupport.base_url");
-        $complain_id = request()['complain_id'];
+        $complain_id = request()->input('complain_id');
         curl_setopt($ch, CURLOPT_URL, "$url/api/list_response/$client_id/$complain_id");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $response = curl_exec($ch);
-        //dd($response);
+
         if (curl_errno($ch)) {
             echo 'Error: ' . curl_error($ch);
+            return; // Handle the cURL error here
         }
 
-        //dd(json_decode($response));
-        $complain = json_decode($response);
-        // dd($complains, request()['complain_id']);
-        //dd($complain);
         curl_close($ch);
-        return view('helpsupport::ViewResponse', compact("complain"));
-        // return view('maf.help_support.ViewResponse');
-    }
 
+        $complain = json_decode($response);
+
+        if ($complain === null) {
+            return abort(404);
+        }
+        if (property_exists($complain, 'message') && $complain->message == 'Unauthorized action') {
+            return abort(401);
+        }
+        return view('helpsupport::ViewResponse', compact("complain"));
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -241,6 +251,8 @@ class HelpsupportController extends ControllersController
     {
         //
     }
+
+    // to list the all tickets
     public function MyTickets()
     {
 
@@ -255,55 +267,21 @@ class HelpsupportController extends ControllersController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $response = curl_exec($ch);
-        // Log::info($response);
+
         if (curl_errno($ch)) {
             echo 'Error: ' . curl_error($ch);
         }
         curl_close($ch);
-        //dd(json_decode($response));
+
         $complains = json_decode($response);
-        //dd($complains);
+
         return view('helpsupport::ViewTicket', compact("complains"));
     }
-    /*  public function TicketTracking(Request $request)
-    {
 
-
-        $complain_id = $request->input('complain_id');
-
-        $client_id = config("helpsupport.client_id");
-        $ch = curl_init();
-        $url = config("helpsupport.base_url");
-        //$complain_id = request()['complain_id'];
-        curl_setopt($ch, CURLOPT_URL, "$url/api/list_response/$client_id/$complain_id");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        $response = curl_exec($ch);
-        try {
-            // cURL request code
-            $response = curl_exec($ch);
-        } catch (Exception $e) {
-            return redirect()->back()->with("error", $e->getMessage());
-        }
-
-        if (curl_errno($ch)) {
-            echo 'Error: ' . curl_error($ch);
-        }
-
-        // dd(json_decode($response));
-        $complain = json_decode($response);
-       // log::alert($complain);
-        if (!$complain || !$complain->complain) {
-            return redirect()->back()->with("error", "Ticket Number Not Found");
-        }
-        return view('helpsupport::ViewResponse', compact("complain"));
-
-        curl_close($ch);
-    } */
+    // to check if the  ticket is there using complain id
     public function TicketTracking(Request $request)
     {
         $complain_id = $request->input('complain_id');
-
         $client_id = config("helpsupport.client_id");
         $ch = curl_init();
         $url = config("helpsupport.base_url");
@@ -319,16 +297,16 @@ class HelpsupportController extends ControllersController
 
         $complain = json_decode($response);
 
-        if (!$complain || !$complain->complain) {
-            // Display a toastr error notification
-            echo '<script>toastr.error("Ticket Number Not Found", "Error");</script>';
-            return redirect()->back();
+        if ($complain) {
+            return response()->json(['complain_found' => true, 'complain_id' => $complain_id]);
+        } else {
+            return response()->json(['complain_found' => false]);
         }
-
-        return view('helpsupport::ViewResponse', compact("complain"));
     }
 
 
+
+    // to ReOpen the tickets again
     public function updateTicketStatus($ticketId)
     {
         // Set cURL options
