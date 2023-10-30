@@ -8,6 +8,7 @@
     <title>{{ __('Help Support') }}</title>
     <!-- BOOTSTRAP CSS -->
     <link id="style" href="{{ asset('vendor/helpsupport/plugins/css/bootstrap.min.css') }}" rel="stylesheet" />
+
     <!-- STYLE CSS -->
     <link rel="stylesheet" href="{{ asset('vendor/helpsupport/css/style.css') }}">
     <link href="{{ asset('vendor/helpsupport/css/dark-style.css') }}" rel="stylesheet" />
@@ -18,7 +19,8 @@
     <!-- COLOR SKIN CSS -->
     <link id="theme" rel="stylesheet" type="text/css" media="all" href="{{ asset('vendor/helpsupport/colors/color1.css') }}" />
 
-    <link rel="stylesheet" href="{{ asset('path/to/toastr.min.css') }}">
+
+
 
 </head>
 
@@ -34,6 +36,7 @@
                         <a href="index.html"><img src="{{ asset('vendor/helpsupport/images/brand/moeen3.png') }}" class="header-brand-img" alt=""></a>
                     </div>
                 </div>
+                <div id="toast-container"></div>
 
                 <div class="container-login100">
                     <div class="wrap-login100 p-6">
@@ -61,22 +64,16 @@
                                             <a class="btn btn-primary btn-block" href="{{ route('MytTickets') }}" id="ShowTicket"><i class="fa fa-trello"></i>&nbsp;{{ __('Show My Tickets') }} </a>
                                         </div>
                                     </div>
-
+                                    <!-- to check the complain by entering the comoplain id  -->
                                     <div class="tab-pane" id="tab6">
                                         <form id="TiketTracking" name="TiketTracking" class="form-horizontal" method="POST" action="{{ route('checkTicketTracking') }}" enctype="multipart/form-data">
                                             @csrf
                                             <div class="mb-3">
                                                 <label for="complain_id" class="form-label">{{ __('Enter The Ticket Id') }}</label>
-
                                                 <input type="text" class="form-control" name="complain_id" id="complain_id" aria-describedby="complain_id" placeholder="{{ __('Ticket Number') }}" value="{{ old('complain_id') }}" required>
-                                                @if (session('error'))
-                                                    <div class="alert alert-danger">
-                                                        {{ session('error') }}
-                                                    </div>
-                                                @endif
                                             </div>
                                             <div class="card-body">
-                                                <button class="btn btn-primary btn-block" id="CurrentTicket"><i class="icon icon-knowledge"></i>{{ __('Track Current Ticket') }} </button>
+                                                <button class="btn btn-primary btn-block" id="CurrentTicket"><i class="icon icon-knowledge"></i>{{ __('Track Current Ticket') }}</button>
                                             </div>
                                         </form>
                                     </div>
@@ -143,7 +140,8 @@
 
     <!-- Custom script for triggering the modal -->
 
-    <script src="{{ asset('path/to/toastr.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 
 
@@ -154,6 +152,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            // to display the modal of the ticket types
 
             $('#createSupportNewTicket').click(function(e) {
                 e.preventDefault(); // Prevent the default form submission behavior
@@ -162,13 +161,48 @@
             });
 
 
+            // Check if the complaint is found
 
+            $('#CurrentTicket').click(function(e) {
+                e.preventDefault(); // Prevent the default form submission behavior
 
+                // Get the complain_id from the input field
+                var complain_id = $('#complain_id').val();
+
+                // Check if the complaint is found
+                if (complain_id) {
+                    // Send an AJAX request to check if the ticket exists
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('checkTicketTracking') }}",
+                        data: {
+                            complain_id: complain_id,
+                            _token: '{{ csrf_token() }}', // Include the CSRF token
+                        },
+                        success: function(response) {
+                            if (response.complain_found) {
+                                window.location.href = "{{ route('showResponse', ['complain_id' => '']) }}" + response.complain_id;
+
+                            } else {
+                                // Display a SweetAlert notification if the complaint is not found
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ticket Not Found',
+                                    text: 'The ticket with ID ' + complain_id + ' was not found.',
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    // Display an error message if the input is empty
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Input',
+                        text: 'Please enter a valid Ticket Number.',
+                    });
+                }
+            });
         });
-        toastr.options = {
-            "positionClass": "toast-top-right",
-            "preventDuplicates": true,
-        };
     </script>
 
 
